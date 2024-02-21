@@ -76,33 +76,6 @@ def usuarios_modificar(request):
         usuario_sesion.delete()
         return Response({"Usuario eliminado"})
 
-# @api_view(['GET', 'POST', 'PUT', 'DELETE'])
-# def usuarios_administrar(request):
-#     if request.method == 'GET': 
-#         usuario = Perfil.objects.all()
-#         serializer = Perfil_Serializer(usuario, many = True)
-#         return Response(serializer.data)
-    
-#     if request.method == 'POST':
-#         de_serializer = Perfil_Serializer(data=request.data)
-#         if de_serializer.is_valid():
-#             de_serializer.save()
-#             return Response(de_serializer.data)
-#         else:
-#             return Response(de_serializer.errors)
-    
-#     if request.method == 'PUT':
-#         data_in = json.loads(request.body)
-#         usuario_id = data_in.get('ci')
-#         if usuario_id is not None:
-#             usuario = Perfil.objects.get(ci=usuario_id)
-#             if usuario is not None:             
-#                 de_serializer = Perfil_Serializer(usuario, data=request.data)
-#                 if de_serializer.is_valid():
-#                     de_serializer.save()     
-#                     return Response(de_serializer.data)
-#         return Response(de_serializer.errors)
-    
 @api_view()
 def cargar_usuario_formulario(request):
     if request.method == 'GET': 
