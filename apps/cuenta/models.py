@@ -9,6 +9,7 @@ class Cuenta(models.Model):
     limite_POS = models.IntegerField()
     tipo_cuenta = models.TextField(max_length=3)
     propietario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=100)
     
     def __str__(self) :
         return self.no_cuenta

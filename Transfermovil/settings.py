@@ -42,8 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'coreapi',
     # 'transfermovil_app',
-    'allauth',
-    'allauth.account',
+    # 'allauth',
+    # 'allauth.account',
     'apps.usuario',
     'apps.cuenta'
 ]
@@ -59,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware', #añadido por allauth
+    # 'allauth.account.middleware.AccountMiddleware', #añadido por allauth  django.contrib.sessions.middleware.SessionMiddleware
 ]
 
 ROOT_URLCONF = 'Transfermovil.urls'
@@ -77,20 +77,20 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.request', #añadido por allauth
+                # 'django.template.context_processors.request', #añadido por allauth
             ],
         },
     },
 ]
 
 #Añadido por allauth
-AUTHENTICATION_BACKENDS = [
-    # Needed to login by username in Django admin, regardless of `allauth`
-    'django.contrib.auth.backends.ModelBackend',
+# AUTHENTICATION_BACKENDS = [
+#     # Needed to login by username in Django admin, regardless of `allauth`
+#     'django.contrib.auth.backends.ModelBackend',
 
-    # `allauth` specific authentication methods, such as login by email
-    'allauth.account.auth_backends.AuthenticationBackend',
-]
+#     # # `allauth` specific authentication methods, such as login by email
+#     # 'allauth.account.auth_backends.AuthenticationBackend',
+# ]
 #-------------------
 
 WSGI_APPLICATION = 'Transfermovil.wsgi.application'
@@ -161,7 +161,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #Cors authorization
 CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
+CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
+    ],
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ],
 }
+
+
+
+# LOGIN_URL = '/login/'
+# LOGOUT_URL = 'http://localhost:8000/usuario/logout/'

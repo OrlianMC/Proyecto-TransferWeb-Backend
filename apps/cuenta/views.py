@@ -15,6 +15,10 @@ from apps.cuenta.serializers import Cuenta_Serializer
 @api_view(['POST', 'PUT', 'DELETE'])
 def cuenta_registrar(request):
     if request.method == 'POST':
+        usuario_sesion = request.user
+        usuario_id = usuario_sesion.id
+        print(usuario_sesion)
+        print(usuario_id)
         de_serializer = Cuenta_Serializer(data=request.data, context={'request': request})
         if de_serializer.is_valid():
             de_serializer.save()

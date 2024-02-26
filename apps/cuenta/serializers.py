@@ -12,9 +12,14 @@ class Cuenta_Serializer(serializers.Serializer):
     limite_ATM = serializers.IntegerField()
     limite_POS = serializers.IntegerField()
     tipo_cuenta = serializers.CharField(max_length=3)
+    nombre = serializers.CharField(max_length=100)
     
     def create(self, validated_data):
-        perfil_sesion = self.context['request'].user.perfil
+        usuario_sesion = self.context['request'].user
+        # perfil_sesion = usuario_sesion.perfil
+        print(usuario_sesion)
+        # print(perfil_sesion)
+        perfil_sesion = Perfil.objects.get(ci = "01032169041")
         validated_data['propietario'] = perfil_sesion
         return Cuenta.objects.create(**validated_data)
     
@@ -24,6 +29,7 @@ class Cuenta_Serializer(serializers.Serializer):
         cuenta.limite_ATM = validated_data.get('limite_ATM', cuenta.limite_ATM)
         cuenta.limite_POS = validated_data.get('limite_POS', cuenta.limite_POS)
         cuenta.tipo_cuenta = validated_data.get('tipo_cuenta', cuenta.tipo_cuenta)
+        cuenta.nombre = validated_data.get('nombre', cuenta.nombre)
         cuenta.propietario = cuenta.propietario
         cuenta.save()
         
@@ -35,4 +41,5 @@ class Listar_Cuenta_Serializer(serializers.Serializer):
     limite_ATM = serializers.IntegerField()
     limite_POS = serializers.IntegerField()
     tipo_cuenta = serializers.CharField(max_length=3)
+    nombre = serializers.CharField(max_length=100)
     propietario = serializers.CharField()

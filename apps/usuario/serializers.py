@@ -3,14 +3,14 @@ from apps.usuario.models import Perfil
 from django.contrib.auth.models import User
 
 class Perfil_Serializer(serializers.Serializer):
-    username = serializers.CharField()
-    email = serializers.EmailField()
-    password = serializers.CharField()
-    telefono = serializers.CharField()
-    direccion = serializers.CharField()
-    ci = serializers.CharField()
-    sexo = serializers.CharField()
-    
+    user = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=False)
+    telefono = serializers.CharField(required=True)
+    direccion = serializers.CharField(required=False)
+    ci = serializers.CharField(required=True)
+    sexo = serializers.CharField(required=True)
+  
     
     def create(self, validated_data):
         
@@ -19,14 +19,15 @@ class Perfil_Serializer(serializers.Serializer):
         password = validated_data.get('password')
 
         # Crear un nuevo usuario en Django
-        usuario = User.objects.create_user(username=username, email=email, password=password)
+        if password is not None: # Opcional
+            usuario = User.objects.create_user(username=username, email=email, password=password)
 
         telefono=validated_data.get('telefono')
         direccion=validated_data.get('direccion')
         ci=validated_data.get('ci')
         sexo=validated_data.get('sexo')
         
-        return Perfil.objects.create(user=usuario, telefono=telefono, direccion=direccion, ci=ci, sexo=sexo)
+        return Perfil.objects.create(user=usuario, telefono=telefono, direccion=direccion, ci=ci, sexo=sexo, email=email)
     
     def update(self, perfil, validated_data):
     
@@ -47,8 +48,7 @@ class Perfil_Serializer(serializers.Serializer):
         perfil.sexo = validated_data.get('sexo', perfil.sexo)
         
         perfil.save()
-        
-        
+                
         return perfil
 
 class Perfil_Listar_Serializer(serializers.Serializer):
@@ -57,7 +57,7 @@ class Perfil_Listar_Serializer(serializers.Serializer):
     direccion = serializers.CharField()
     ci = serializers.CharField()
     sexo = serializers.CharField()
-
+    email = serializers.EmailField()
 
 # class Perfil_Serializer(serializers.Serializer):
 #     correo = serializers.EmailField()

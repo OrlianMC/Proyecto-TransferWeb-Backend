@@ -24,16 +24,18 @@ def login_user(request):
         
         if user is not None:
             login(request, user)
+            print(request.COOKIES)
+            print(request.user)
             return Response({True})
 
         
     return Response({False})
 
 @csrf_exempt
-@api_view()
+@api_view(['POST'])
 def logout_user(request):
     logout(request)
-    return Response({"Sesión cerrada correctamente"})
+    return Response({"message": "Sesión cerrada correctamente"})
 
 @csrf_exempt
 @api_view(['POST'])
@@ -47,8 +49,7 @@ def usuarios_registrar(request):
             return Response({"error": "Método no permitido"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @csrf_exempt
-@login_required
-@api_view(['PUT', 'GET', 'DELETE'])
+@api_view(['PUT', 'GET', 'POST'])
 def usuarios_modificar(request):
     if request.method == 'GET': 
         perfil = Perfil.objects.all()
@@ -68,40 +69,38 @@ def usuarios_modificar(request):
                 if de_serializer.is_valid():
                     de_serializer.save()     
                     return Response({"Usuario modificado"})
-                
-        return Response(de_serializer.errors)
-    
-    if request.method == 'DELETE':
-        usuario_sesion = request.user
-        usuario_sesion.delete()
-        return Response({"Usuario eliminado"})
 
-@api_view()
-def cargar_usuario_formulario(request):
-    if request.method == 'GET': 
-        data_in = json.loads(request.body)
-        usuario_id = data_in.get('ci')
-        if usuario_id is not None:
-            usuario = Perfil.objects.get(ci=usuario_id)
-            if usuario is not None:
-                serializer = Perfil_Serializer(usuario)
-            return Response(serializer.data)
-    return Response(serializer.errors)
-
+@csrf_exempt
 @api_view(['POST'])
-def buscar_usuario(request):
+def usuarios_eliminar(request):
     
-    if request.method == 'POST':
+    data_in = json.loads(request.body)
+    username = data_in.get('username')
+    
+    try:
+        usuario = User.objects.get(username=username)
+        usuario.delete()
+        return Response({"message": "Usuario eliminado"})
+    except User.DoesNotExist:
+        return Response({"error": "El usuario no existe"})       
         
-        data = json.loads(request.body)
-        correo = data.get('correo')
-        contrasena = data.get('contrasena')    
-                      
-        usuario_encontrado = Perfil.objects.filter(correo=correo, contrasena = contrasena).first()
+    return Response({"Usuario eliminado"})
+
+@csrf_exempt
+@api_view(['POST'])
+def cargar_usuario_formulario(request):
+    
+    data_in = json.loads(request.body)
+    username = data_in.get('username')
         
-        if usuario_encontrado:
-            return HttpResponse("Usuario encontrado: " + usuario_encontrado.correo)
-        else:
-            return HttpResponse("Usuario no encontrado")    
+    if username is not None:
+        usuario = User.objects.get(username=username)
+            
+        try:
+            perfil = Perfil.objects.get(user=usuario.id)
+            serializer = Perfil_Listar_Serializer(perfil)
+            return Response(serializer.data)
+        except Perfil.DoesNotExist:
+            return Response({"error": "El perfil del usuario no existe."}, status=404)
     else:
-        return HttpResponse("Método no permitido")
+        return Response({"error": "No se encontró un usuario autenticado."}, status=401)
