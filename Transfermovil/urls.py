@@ -21,6 +21,7 @@ from rest_framework.documentation import include_docs_urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('docs/', include_docs_urls(title="Transfermovil API")),
+    path('sesion/', include('apps.sesion.urls')),
     path('usuario/', include('apps.usuario.urls')),
     path('cuenta/', include('apps.cuenta.urls')),
 ]

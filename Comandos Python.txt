@@ -1,0 +1,103 @@
+Paso 1: Abrir Consola y ubicarse en la carpeta del proyecto:
+
+	win + R
+	cd C:\Ruta
+
+- Crear Entorno Virtual:
+
+	python -m venv 'nombre_entorno_virtual'
+
+- Activar Entorno Virtual:
+
+	'nombre_entorno_virtual'\Scripts\activate
+
+- Desactivar Entorno Virtual:
+
+	'nombre_entorno_virtual'\Scripts\deactivate
+
+- Ver librerías instaladas en el Entorno Virtual:
+
+	pip freeze
+
+ (Ver librerías instaladas en el sistema operativo  se abre otra consola fuera del Entorno Virtual y se ejecuta el comando)
+
+- Instalar librerías en el entorno virtual:
+
+	pip install Django
+
+- Actualizar version pip:
+
+	python -m pip install --upgrade pip
+
+- Crear Proyecto:
+
+	django-admin startproject 'nombre_del_proyecto'
+
+- Abrir proyecto en VSC:
+
+	code .
+
+- Crear aplicación dentro del proyecto (Se entra en consola a la carpeta del proyecto):
+
+	python manage.py startapp 'nombre_aplicacion'_app
+
+- Correr servidor:
+	
+	python manage.py runserver
+
+- Crear super usuario
+
+	python manage.py createsuperuser
+	
+- Hacer migración:
+
+	python manage.py migrate
+
+- Instalar adaptador PostgreSQL
+
+        pip install psycopg2-binary
+
+- Crear la base de datos
+
+- Configuración de la Base de Datos en Django: En tu configuración de proyecto Django (settings.py), configura la conexión a la base de datos PostgreSQL. La sección relevante se verá algo así:
+
+   
+
+Python
+
+   DATABASES = {
+       'default': {
+           'ENGINE': 'django.db.backends.postgresql',
+           'NAME': 'nombre_basedatos',
+           'USER': 'tu_usuario',
+           'PASSWORD': 'tu_contraseña',
+           'HOST': 'localhost',  # Si tu PostgreSQL corre en tu máquina local
+           'PORT': '5432',        # El puerto por defecto de PostgreSQL
+       }
+   }
+
+- Hacer migracion:
+
+	python manage.py makemigrations
+	python manage.py migrate
+
+- Crear super usuario:
+
+	python manage.py createsuperuser
+
+- Instalar JWT(Trabajo con Token):
+
+	pip install djangorestframework_simplejwt
+	
+
+- Archivo setting.py:
+
+	REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+

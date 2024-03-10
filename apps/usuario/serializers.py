@@ -3,15 +3,14 @@ from apps.usuario.models import Perfil
 from django.contrib.auth.models import User
 
 class Perfil_Serializer(serializers.Serializer):
-    user = serializers.CharField(required=True)
+    username = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
     password = serializers.CharField(required=False)
     telefono = serializers.CharField(required=True)
     direccion = serializers.CharField(required=False)
     ci = serializers.CharField(required=True)
     sexo = serializers.CharField(required=True)
-  
-    
+
     def create(self, validated_data):
         
         username = validated_data.get('username')
@@ -19,8 +18,8 @@ class Perfil_Serializer(serializers.Serializer):
         password = validated_data.get('password')
 
         # Crear un nuevo usuario en Django
-        if password is not None: # Opcional
-            usuario = User.objects.create_user(username=username, email=email, password=password)
+        # if password is not None: # Opcional
+        usuario = User.objects.create_user(username=username, email=email, password=password)
 
         telefono=validated_data.get('telefono')
         direccion=validated_data.get('direccion')
@@ -58,6 +57,11 @@ class Perfil_Listar_Serializer(serializers.Serializer):
     ci = serializers.CharField()
     sexo = serializers.CharField()
     email = serializers.EmailField()
+
+class PerfilSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Perfil
+        fields = ['user']
 
 # class Perfil_Serializer(serializers.Serializer):
 #     correo = serializers.EmailField()

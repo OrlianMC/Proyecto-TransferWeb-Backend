@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view
 from apps.usuario.models import Perfil
 from apps.usuario.serializers import Perfil_Serializer, Perfil_Listar_Serializer
 
-@csrf_exempt
+# @csrf_exempt
 @api_view(['POST'])
 def login_user(request):
     if request.method == 'POST':
@@ -42,14 +42,16 @@ def logout_user(request):
 def usuarios_registrar(request):
     if request.method == 'POST':
         de_serializer = Perfil_Serializer(data=request.data)
+        
         if de_serializer.is_valid():
             de_serializer.save()
+            print('Bandera 1')
             return Response({"message": "Perfil creado correctamente"}, status=status.HTTP_201_CREATED)
         else:
             return Response({"error": "Método no permitido"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @csrf_exempt
-@api_view(['PUT', 'GET', 'POST'])
+@api_view(['PUT', 'GET'])
 def usuarios_modificar(request):
     if request.method == 'GET': 
         perfil = Perfil.objects.all()

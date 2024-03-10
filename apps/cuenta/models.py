@@ -3,7 +3,7 @@ from django.db import models
 from apps.usuario.models import Perfil
     
 class Cuenta(models.Model):
-    no_cuenta = models.TextField(max_length=16, unique=True, primary_key=True)
+    no_cuenta = models.TextField(max_length=16, unique=True)
     saldo = models.FloatField()
     limite_ATM = models.IntegerField()
     limite_POS = models.IntegerField()
