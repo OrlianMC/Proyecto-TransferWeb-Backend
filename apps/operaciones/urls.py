@@ -7,6 +7,8 @@ urlpatterns = [
     path('recargarMovil/', recargar_saldo_movil, name='recarargar-saldo-movil'),
     path('recargarNauta/', recargar_nauta, name='recarargar-nauta'),
     path('ultimasOperaciones/', ultimas_operaciones, name='ultimas-operaciones'),
+    path('detalleOperaciones/', detalle_operaciones, name='detalle-operaciones'),
+    path('resumenOperaciones/', resumen_operaciones, name='resumen-operaciones'),
     path('limites/', limites, name='limites'),
 ]
 

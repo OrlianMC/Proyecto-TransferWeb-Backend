@@ -10,14 +10,16 @@ from apps.cuenta.models import Cuenta
 from apps.operaciones.models import Operacion
 from apps.cuenta.serializers import *
 from apps.operaciones.serializers import *
+from datetime import datetime
+from django.db.models import F
 
 @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def consultar_saldo(request):
     data_in = json.loads(request.body)
     tipo_cuenta = data_in.get('tipo_cuenta')
-    
-    propietario = get_object_or_404(Perfil, user=1) #Cambiarrrrrrrrrrrrrrr
+    usuario = request.user
+    propietario = get_object_or_404(Perfil, user=usuario) #Cambiarrrrrrrrrrrrrrr
     cuentas = Cuenta.objects.filter(tipo_cuenta=tipo_cuenta, propietario=propietario)
     serializer = Cuenta_Serializer(cuentas, many=True)
     
@@ -39,8 +41,9 @@ def consultar_saldo(request):
 # @permission_classes([IsAuthenticated])
 def realizar_transferencia(request):
     if request.method == 'GET':
-        usuario = request.user
-        propietario = Perfil.objects.get(user=1)  # Revisar si sirveeeeeeeeeeeeeeeeee
+        usuario = 1 #request.user
+        
+        propietario = get_object_or_404(Perfil, user=usuario)
         cuenta = Cuenta.objects.filter(propietario=propietario)
         serializer = Cuenta_Serializer(cuenta, many=True)
         return Response(serializer.data)
@@ -71,10 +74,10 @@ def realizar_transferencia(request):
             cuenta_destino.save()
             
             # Agregar datos a la entidad operaciones para resumen de operaciones
+            operacion_DB = Operacion.objects.create(cuenta=cuenta_origen, informacion=str(cuenta_destino.no_cuenta), servicio='Transferencia', operacion='Débito', monto=float(monto), moneda=cuenta_origen.tipo_cuenta)
+            operacion_DB.save()
             operacion_CR = Operacion.objects.create(cuenta=cuenta_destino, servicio='Transferencia', operacion='Crédito', monto=float(monto), moneda=cuenta_destino.tipo_cuenta)
             operacion_CR.save()
-            operacion_DB = Operacion.objects.create(cuenta=cuenta_origen, servicio='Transferencia', operacion='Débito', monto=float(monto), moneda=cuenta_origen.tipo_cuenta)
-            operacion_DB.save()
             
         else:
             return Response({"error": "Saldo insuficiente"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -84,11 +87,11 @@ def realizar_transferencia(request):
         return Response({"message": mensaje}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST', 'GET'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def recargar_saldo_movil(request):
     if request.method == 'GET':
         usuario = request.user
-        propietario = Perfil.objects.get(user=1)  # Revisar si sirveeeeeeeeeeeeeeeeee
+        propietario = get_object_or_404(Perfil, user=usuario)  # Revisar si sirveeeeeeeeeeeeeeeeee
         cuenta = Cuenta.objects.filter(propietario=propietario)
         serializer = Cuenta_Serializer(cuenta, many=True)
         return Response(serializer.data)
@@ -111,7 +114,7 @@ def recargar_saldo_movil(request):
                 cuenta_origen.saldo -= monto_new
                 cuenta_origen.save()
                 mensaje = "La recarga se realizó con exito. Saldo a acreditar: "+str(monto)+" "+str(cuenta_origen.tipo_cuenta)+". Monto pagado: "+str(monto_new)+" "+str(cuenta_origen.tipo_cuenta)+". Teléfono: "+str(telefono)+". Saldo restante: "+str(cuenta_origen.saldo)+" "+str(cuenta_origen.tipo_cuenta)+". Gracias por utilizar nuestros servicios, ETECSA."
-                operacion_DB = Operacion.objects.create(cuenta=cuenta_origen, servicio='Recarga Saldo Movil', operacion='Débito', monto=float(monto_new), moneda=cuenta_origen.tipo_cuenta)
+                operacion_DB = Operacion.objects.create(cuenta=cuenta_origen, informacion=str(telefono), servicio='Recarga Saldo Movil', operacion='Débito', monto=float(monto_new), moneda=cuenta_origen.tipo_cuenta)
                 operacion_DB.save()
                 
             if tipo_cuenta == 'MLC':
@@ -120,7 +123,7 @@ def recargar_saldo_movil(request):
                 acreditado = float(monto)*24
                 cuenta_origen.save()
                 mensaje = "La recarga se realizó con exito. Saldo a acreditar: "+str(monto)+" "+str(cuenta_origen.tipo_cuenta)+". Monto pagado: "+str(monto_new)+" "+str(cuenta_origen.tipo_cuenta)+". Saldo acreditado: "+str(acreditado)+" CUP. Teléfono: "+str(telefono)+". Saldo restante: "+str(cuenta_origen.saldo)+" "+str(cuenta_origen.tipo_cuenta)+". Gracias por utilizar nuestros servicios, ETECSA."
-                operacion_DB = Operacion.objects.create(cuenta=cuenta_origen, servicio='Recarga Saldo Movil', operacion='Débito', monto=float(monto_new), moneda=cuenta_origen.tipo_cuenta)
+                operacion_DB = Operacion.objects.create(cuenta=cuenta_origen,informacion=str(telefono), servicio='Recarga Saldo Movil', operacion='Débito', monto=float(monto_new), moneda=cuenta_origen.tipo_cuenta)
                 operacion_DB.save()
         else:
             return Response({"error": "Saldo insuficiente"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -128,11 +131,11 @@ def recargar_saldo_movil(request):
         return Response({"message": mensaje}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST', 'GET'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def recargar_nauta(request):
     if request.method == 'GET':
         usuario = request.user
-        propietario = Perfil.objects.get(user=1)  # Revisar si sirveeeeeeeeeeeeeeeeee
+        propietario = get_object_or_404(Perfil, user=usuario)  # Revisar si sirveeeeeeeeeeeeeeeeee
         cuenta = Cuenta.objects.filter(propietario=propietario)
         serializer = Cuenta_Serializer(cuenta, many=True)
         return Response(serializer.data)
@@ -156,7 +159,7 @@ def recargar_nauta(request):
                 cuenta_origen.saldo -= monto_new
                 cuenta_origen.save()
                 mensaje = "La recarga  nauta se realizó con exito. Saldo a acreditar: "+str(monto)+" "+str(cuenta_origen.tipo_cuenta)+". Monto pagado: "+str(monto_new)+" "+str(cuenta_origen.tipo_cuenta)+". Teléfono: "+str(telefono)+". Tipo de cuenta: "+str(tipo_cuenta)+". Nombre de usuario: "+str(nombre_usuario)+". Saldo restante: "+str(cuenta_origen.saldo)+" "+str(cuenta_origen.tipo_cuenta)+". Gracias por utilizar nuestros servicios, ETECSA."
-                operacion_DB = Operacion.objects.create(cuenta=cuenta_origen, servicio='Recarga Nauta', operacion='Débito', monto=float(monto_new), moneda=cuenta_origen.tipo_cuenta)
+                operacion_DB = Operacion.objects.create(cuenta=cuenta_origen,informacion=str(nombre_usuario), servicio='Recarga Nauta', operacion='Débito', monto=float(monto_new), moneda=cuenta_origen.tipo_cuenta)
                 operacion_DB.save()
                 
             if cuenta_origen.tipo_cuenta == 'MLC':
@@ -165,7 +168,7 @@ def recargar_nauta(request):
                 acreditado = float(monto)*24
                 cuenta_origen.save()
                 mensaje = "La recarga nauta se realizó con exito. Saldo a acreditar: "+str(monto)+" "+str(cuenta_origen.tipo_cuenta)+". Monto pagado: "+str(monto_new)+" "+str(cuenta_origen.tipo_cuenta)+". Saldo acreditado: "+str(acreditado)+" CUP. Teléfono: "+str(telefono)+". Tipo de cuenta: "+str(tipo_cuenta)+". Nombre de usuario: "+str(nombre_usuario)+". Saldo restante: "+str(cuenta_origen.saldo)+" "+str(cuenta_origen.tipo_cuenta)+". Gracias por utilizar nuestros servicios, ETECSA."
-                operacion_DB = Operacion.objects.create(cuenta=cuenta_origen, servicio='Recarga Nauta', operacion='Débito', monto=float(monto_new), moneda=cuenta_origen.tipo_cuenta)
+                operacion_DB = Operacion.objects.create(cuenta=cuenta_origen, informacion=str(nombre_usuario), servicio='Recarga Nauta', operacion='Débito', monto=float(monto_new), moneda=cuenta_origen.tipo_cuenta)
                 operacion_DB.save()
         else:
             return Response({"error": "Saldo insuficiente"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -177,7 +180,7 @@ def recargar_nauta(request):
 def limites(request):
     if request.method == 'GET':
         usuario = request.user
-        propietario = Perfil.objects.get(user=1)  # Revisar si sirveeeeeeeeeeeeeeeeee
+        propietario = get_object_or_404(Perfil, user=usuario)  # Revisar si sirveeeeeeeeeeeeeeeeee
         cuenta = Cuenta.objects.filter(propietario=propietario)
         serializer = Cuenta_Serializer(cuenta, many=True)
         return Response(serializer.data)
@@ -230,3 +233,55 @@ def ultimas_operaciones(request):
     serializer = Operaciones_Serializer(operaciones, many=True)
     
     return Response(serializer.data)
+
+@api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+def detalle_operaciones(request):
+    # data_in = json.loads(request.body)
+    # cuenta_id_origen = data_in.get('id')
+    
+    cuenta_id_origen=5
+    
+    cuenta = get_object_or_404(Cuenta, id=cuenta_id_origen)
+    
+    operaciones = Operacion.objects.filter(cuenta=cuenta, operacion='Débito').order_by('-fecha')
+    
+    serializer = Operaciones_Serializer(operaciones, many=True)
+    
+    return Response(serializer.data)
+
+@api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+def resumen_operaciones(request):
+    # data_in = json.loads(request.body)
+    # cuenta_id_origen = data_in.get('id')
+    # mes_especifico = data_in.get('mes')
+    # año_especifico = data_in.get('anio')
+    # moneda = data_in.get('moneda')
+    
+    cuenta_id_origen=5
+    mes_especifico = 3  # Por ejemplo, marzo
+    año_especifico = 2024
+    moneda = 'MLC'
+    
+    cuenta = get_object_or_404(Cuenta, id=cuenta_id_origen)
+    
+    # Obtén la fecha de inicio y fin del mes específico
+    fecha_inicio = datetime(año_especifico, mes_especifico, 1)
+    fecha_fin = datetime(año_especifico, mes_especifico + 1, 1)
+
+    # Filtra las operaciones por cuenta, tipo de operación y fecha
+    operaciones = Operacion.objects.filter(
+        cuenta=cuenta,
+        operacion='Débito',
+        moneda=moneda,
+        fecha__gte=fecha_inicio,
+        fecha__lt=fecha_fin
+    ).order_by('-fecha')
+    
+    suma = 0
+    
+    for item in operaciones:
+        suma += float(item.monto)
+    
+    return Response(suma)

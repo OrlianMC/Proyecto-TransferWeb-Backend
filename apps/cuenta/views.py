@@ -13,12 +13,12 @@ from apps.cuenta.models import Cuenta
 from apps.cuenta.serializers import *
 
 @api_view(['POST', 'PUT', 'DELETE', 'GET'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def cuenta_gestionar(request):
     
     if request.method == 'GET':
         usuario = request.user
-        propietario = Perfil.objects.get(user=1)  # Revisar si sirveeeeeeeeeeeeeeeeee
+        propietario = Perfil.objects.get(user=usuario)  # Revisar si sirveeeeeeeeeeeeeeeeee
         cuenta = Cuenta.objects.filter(propietario=propietario)
         serializer = Cuenta_Serializer(cuenta, many=True)
         return Response(serializer.data)
@@ -114,7 +114,7 @@ def validar_datos_cuenta(no_cuenta, saldo, limite_ATM, limite_POS, tipo_cuenta, 
     return errores
 
 @csrf_exempt
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def cuenta_formulario(request): 
     data_in = json.loads(request.body)
@@ -122,4 +122,3 @@ def cuenta_formulario(request):
     cuenta = get_object_or_404(Cuenta, id=cuenta_id)
     serializer = Cuenta_Serializer(cuenta)
     return Response(serializer.data)
-
