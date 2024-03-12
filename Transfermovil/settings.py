@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'apps.usuario',
     'apps.cuenta',
-    'apps.sesion'
+    'apps.sesion',
+    'apps.operaciones',
 ]
  
 MIDDLEWARE = [
@@ -165,8 +166,8 @@ REST_FRAMEWORK = {
 
 # JWT authentication
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=365),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=365),
+    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=600),
+    "REFRESH_TOKEN_LIFETIME": timedelta(seconds=600),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,

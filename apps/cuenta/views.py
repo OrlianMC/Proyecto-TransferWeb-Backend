@@ -12,9 +12,8 @@ from apps.usuario.models import Perfil
 from apps.cuenta.models import Cuenta
 from apps.cuenta.serializers import *
 
-@csrf_exempt
-# @permission_classes([IsAuthenticated])
 @api_view(['POST', 'PUT', 'DELETE', 'GET'])
+# @permission_classes([IsAuthenticated])
 def cuenta_gestionar(request):
     
     if request.method == 'GET':
@@ -28,7 +27,7 @@ def cuenta_gestionar(request):
         data_in = json.loads(request.body)
         
         usuario = request.user
-        propietario = Perfil.objects.get(user=1)  # Revisar si sirveeeeeeeeeeeeeeeeee
+        propietario = Perfil.objects.get(user=usuario)  # Revisar si sirveeeeeeeeeeeeeeeeee
         print(propietario)
         no_cuenta = data_in.get('no_cuenta')
         saldo = float(data_in.get('saldo'))
@@ -64,13 +63,13 @@ def cuenta_gestionar(request):
         saldo = cuenta.saldo
         
         usuario = request.user
-        propietario = Perfil.objects.get(user=1)  # Revisar si sirveeeeeeeeeeeeeeeeee
+        propietario = Perfil.objects.get(user=usuario)  # Revisar si sirveeeeeeeeeeeeeeeeee
         if cuenta.propietario != propietario:
             return Response({"error": "Usted no tiene permiso para modificar esta cuenta"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         
         validar_errores = validar_datos_cuenta(no_cuenta, saldo, limite_ATM, limite_POS, tipo_cuenta, nombre)
         if validar_errores:
-            return Response({"error": "Datos incorrectos"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            return Response({"error": "Datos incorrectos"},{"error":validar_errores[0]}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         
         cuenta.no_cuenta = no_cuenta if no_cuenta else cuenta.no_cuenta
         cuenta.limite_ATM = limite_ATM if limite_ATM else cuenta.limite_ATM
@@ -115,7 +114,7 @@ def validar_datos_cuenta(no_cuenta, saldo, limite_ATM, limite_POS, tipo_cuenta, 
     return errores
 
 @csrf_exempt
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def cuenta_formulario(request): 
     data_in = json.loads(request.body)
@@ -123,5 +122,4 @@ def cuenta_formulario(request):
     cuenta = get_object_or_404(Cuenta, id=cuenta_id)
     serializer = Cuenta_Serializer(cuenta)
     return Response(serializer.data)
-        
 

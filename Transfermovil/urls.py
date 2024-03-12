@@ -24,4 +24,5 @@ urlpatterns = [
     path('sesion/', include('apps.sesion.urls')),
     path('usuario/', include('apps.usuario.urls')),
     path('cuenta/', include('apps.cuenta.urls')),
+    path('operaciones/', include('apps.operaciones.urls')),
 ]

@@ -1,8 +1,8 @@
-from django.urls import path, include
+from django.urls import path
 from apps.cuenta.views import *
 
 urlpatterns = [
-    path('registrar/', cuenta_gestionar, name='cuenta-registrar'),
+    path('gestionar/', cuenta_gestionar, name='cuenta-registrar'),
     path('formulario/', cuenta_formulario, name='cuenta-formulario'),
 ]
 

@@ -7,7 +7,8 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from apps.usuario.models import Perfil
 from apps.usuario.serializers import *
 from django.views import View
@@ -39,8 +40,6 @@ def logout_user(request):
     logout(request)
     return Response({"message": "Sesión cerrada correctamente"})
 
-@csrf_exempt
-# @permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def perfil_registrar(request):
             
@@ -74,9 +73,8 @@ def perfil_registrar(request):
             return Response({"message": "Perfil creado correctamente"}, status=status.HTTP_201_CREATED)
         return Response({"error": "Este usuario ya se encuentra registrado"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
     
-@csrf_exempt
-# @permission_classes([IsAuthenticated])
 @api_view(['PUT', 'DELETE', 'GET'])
+@permission_classes([IsAuthenticated])
 def perfil_administrar(request):
     
     if request.method == 'GET':
@@ -98,10 +96,10 @@ def perfil_administrar(request):
         
         perfil = get_object_or_404(Perfil, id=perfil_id)
         
-        # usuario_logueado = request.user
-        # propietario = Perfil.objects.get(user=1)  # Revisar si sirveeeeeeeeeeeeeeeeee
-        # if perfil.user != usuario_logueado:
-        #     return Response({"error": "Usted no tiene permiso para modificar este perfil"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        usuario_logueado = request.user
+        propietario = Perfil.objects.get(user=usuario_logueado)  # Revisar si sirveeeeeeeeeeeeeeeeee
+        if perfil.user != usuario_logueado:
+            return Response({"error": "Usted no tiene permiso para modificar este perfil"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         
         validar_errores = validar_datos_perfil(username, email, password, telefono, direccion, ci, sexo)
         if validar_errores:
@@ -131,12 +129,11 @@ def perfil_administrar(request):
         usuario.delete()   
         return Response({"message": "Perfil eliminado correctamente"}, status=status.HTTP_201_CREATED)
     
-@csrf_exempt
-# @permission_classes([IsAuthenticated])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def perfil_formulario(request):
     usuario = request.user
-    perfil = Perfil.objects.get(user=request.user)
+    perfil = Perfil.objects.get(user=usuario)
     serializer = PerfilSerializer(perfil)
     return Response(serializer.data)
     
