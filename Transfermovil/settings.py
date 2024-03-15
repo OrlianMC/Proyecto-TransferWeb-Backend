@@ -166,8 +166,8 @@ REST_FRAMEWORK = {
 
 # JWT authentication
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=600),
-    "REFRESH_TOKEN_LIFETIME": timedelta(seconds=600),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=59),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=59),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
@@ -194,8 +194,8 @@ SIMPLE_JWT = {
     "JTI_CLAIM": "jti",
 
     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
-    "SLIDING_TOKEN_LIFETIME": timedelta(days=365),
-    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=365),
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=59),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(minutes=59),
 
     "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.MyTokenObtainPairSerializer",
     "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",

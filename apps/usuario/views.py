@@ -118,7 +118,7 @@ def perfil_administrar(request):
         perfil.direccion = direccion if direccion else perfil.direccion
         perfil.ci = ci if ci else perfil.ci
         perfil.sexo = sexo if sexo else perfil.sexo
-        perfil.save()
+        perfil.save()       
 
         return Response({"message": "Perfil modificado correctamente"}, status=status.HTTP_201_CREATED)
     
