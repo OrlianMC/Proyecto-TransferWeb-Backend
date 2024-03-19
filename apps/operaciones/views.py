@@ -351,4 +351,8 @@ def resumen_operaciones(request):
         if item.servicio == 'Recarga Nauta':
             suma_recarga_nauta += float(item.monto)
     
-    return Response({suma_transferencia, suma_recarga_movil, suma_recarga_nauta})
+    return Response({
+        'transferencia': suma_transferencia, 
+        'recarga_movil': suma_recarga_movil, 
+        'recarga_nauta': suma_recarga_nauta
+        })

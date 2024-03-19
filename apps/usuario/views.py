@@ -125,8 +125,9 @@ def perfil_administrar(request):
     if request.method == 'DELETE':
         usuario_autenticado = request.user
         # usuario_autenticado = 'titotitotito'
+        print(usuario_autenticado)
         usuario = User.objects.get(username=usuario_autenticado.username)    # Cambiarrrrrrrr
-        usuario.delete()   
+        usuario.delete()
         return Response({"message": "Perfil eliminado correctamente"}, status=status.HTTP_201_CREATED)
     
 @api_view(['GET'])
