@@ -8,8 +8,10 @@ from rest_framework.permissions import IsAuthenticated
 from apps.usuario.models import Perfil
 from apps.cuenta.models import Cuenta
 from apps.operaciones.models import Operacion
+from apps.servicio.models import Servicio
 from apps.cuenta.serializers import *
 from apps.operaciones.serializers import *
+from apps.servicio.serializers import *
 from datetime import datetime
 
 @api_view(['POST'])
@@ -96,11 +98,11 @@ def realizar_transferencia(request):
         return Response({"message": mensaje}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST', 'GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def recargar_saldo_movil(request):
     if request.method == 'GET':
-        usuario = request.user
-        propietario = get_object_or_404(Perfil, user=usuario)  # Revisar si sirveeeeeeeeeeeeeeeeee
+        # usuario = request.user
+        propietario = get_object_or_404(Perfil, user=1)  # Revisar si sirveeeeeeeeeeeeeeeeee
         cuenta = Cuenta.objects.filter(propietario=propietario)
         serializer = Cuenta_Serializer(cuenta, many=True)
         return Response(serializer.data)
@@ -356,3 +358,88 @@ def resumen_operaciones(request):
         'recarga_movil': suma_recarga_movil, 
         'recarga_nauta': suma_recarga_nauta
         })
+    
+@api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+def consultar_servicio(request):
+    data_in = json.loads(request.body)
+    identificador = data_in.get('identificador')
+    
+    servicio = get_object_or_404(Servicio, identificador=identificador)
+    
+    return Response({
+        "Servicio: ": servicio.nombre,
+        "Monto: ": servicio.monto
+    })
+    
+
+@api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+def pagar_servicio(request):
+    data_in = json.loads(request.body)
+    identificador = data_in.get('identificador')
+    nombre_servicio = data_in.get('nombre')
+    cuenta_id_origen = data_in.get('id')
+    
+    servicio = get_object_or_404(Servicio, identificador=identificador)
+    cuenta_origen = get_object_or_404(Cuenta, id=cuenta_id_origen)
+    
+    monto = servicio.monto   
+     
+    if float(monto) < 0:
+        return Response({"error": "Monto no permitido"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    if cuenta_origen.saldo >= float(monto):
+        cuenta_origen.saldo -= float(monto)
+        cuenta_origen.save()
+    else:
+        return Response({"error": "Saldo insuficiente"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    if nombre_servicio == "Multa de Tránsito":
+        articulo = data_in.get('articulo')
+        inciso = data_in.get('inciso')
+        provincia = data_in.get('provincia')
+        municipio = data_in.get('municipio')
+        fecha = data_in.get('fecha')
+        licencia = servicio.campo
+        
+        mensaje = {"Pago de multa de tránsito realizado con éxito. " + "Licencia: " + licencia +", Artículo:  "+ articulo + 
+                   ", Inciso: " + inciso + ", Provincia: " + provincia + ", Municipio: " + municipio + ", Fecha: " + fecha + 
+                   ", Monto pagado: " + str(monto) + " " + cuenta_origen.tipo_cuenta + ", Saldo restante: " + str(cuenta_origen.saldo) +
+                    " " + cuenta_origen.tipo_cuenta + "."}
+        
+    if nombre_servicio == "Multa de Contravención":
+        moneda = data_in.get('moneda')
+        ci = servicio.campo
+        
+        if moneda != cuenta_origen.tipo_cuenta:
+            return Response({"error": "La moneda seleccionada no coincide con la tarjeta especificada"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        
+        mensaje = {"Pago de multa de contravención realizado con éxito. " + "Carnet de identidad:  "+ ci + ", Monto pagado: " 
+                    + str(monto) + " " + cuenta_origen.tipo_cuenta + ", Saldo restante: " + str(cuenta_origen.saldo) +
+                    " " + cuenta_origen.tipo_cuenta + "."}    
+    
+    if nombre_servicio == "ONAT":
+        provincia = data_in.get('provincia')
+        municipio = data_in.get('municipio')
+        tributo = data_in.get('tributo')
+        periodo_obligacion = data_in.get('fecha')
+        nit = "servicio.campo"
+        
+        mensaje = {"Pago de impuestos a la ONAT realizado con éxito. " + "NIT:  " + nit + ", Provincia: " + provincia + 
+                   ", Municipio: " + municipio + ", Tributo: " + tributo + ", Período obligación: " + periodo_obligacion + 
+                   ", Monto pagado: "  + str(monto) + " " + cuenta_origen.tipo_cuenta + ", Saldo restante: " + str(cuenta_origen.saldo) +
+                    " " + cuenta_origen.tipo_cuenta + "."}
+    
+    operacion_DB = Operacion.objects.create(
+                    cuenta=cuenta_origen,
+                    informacion=str(identificador), 
+                    servicio=str(nombre_servicio), 
+                    operacion='Débito', 
+                    monto=float(monto), 
+                    moneda=cuenta_origen.tipo_cuenta)
+    operacion_DB.save()
+           
+    servicio.delete()
+    
+    return Response(mensaje, status=status.HTTP_200_OK)

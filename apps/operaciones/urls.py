@@ -9,6 +9,8 @@ urlpatterns = [
     path('ultimasOperaciones/', ultimas_operaciones, name='ultimas-operaciones'),
     path('detalleOperaciones/', detalle_operaciones, name='detalle-operaciones'),
     path('resumenOperaciones/', resumen_operaciones, name='resumen-operaciones'),
+    path('consultarServicio/', consultar_servicio, name='consultar-factura'),
+    path('pagarServicio/', pagar_servicio, name='pagar-factura'),
     path('limites/', limites, name='limites'),
 ]
 

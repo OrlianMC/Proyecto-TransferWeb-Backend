@@ -10,10 +10,10 @@ from apps.usuario.models import Perfil
 from apps.servicio.serializers import ServicioSerializer
 
 @api_view(['POST', 'PUT', 'GET', 'DELETE'])
-@permission_classes([IsAuthenticated])
-def gestionar_servicios(request):
+# @permission_classes([IsAuthenticated])
+def gestionar_servicio(request):
     if request.method == 'GET':
-        propietario = Perfil.objects.get(user=request.user)
+        propietario = Perfil.objects.get(user=1)
         servicio = Servicio.objects.filter(propietario=propietario)
         serializer = ServicioSerializer(servicio, many=True)
         return Response(serializer.data)
@@ -23,8 +23,16 @@ def gestionar_servicios(request):
         identificador = data_in.get('identificador')
         nombre = data_in.get('nombre')
         monto = data_in.get('monto')
+        campo = "-"
         
-        errores = validar_datos_servicio(monto, nombre, identificador, True)
+        if nombre == "ONAT":
+            campo = data_in.get('campo')    
+        if nombre == "Multa de Contravensión":
+            campo = data_in.get('campo')
+        if nombre == "Multa de Tránsito":
+            campo = data_in.get('campo')     
+            
+        errores = validar_datos_servicio(monto, nombre, identificador, campo, True)
         
         if errores:
             mensajes = ""
@@ -32,8 +40,8 @@ def gestionar_servicios(request):
                 mensajes += error + " "
             return Response(mensajes)
         
-        propietario = get_object_or_404(Perfil, user=request.user)
-        servicio = Servicio.objects.create(propietario=propietario, nombre=nombre, identificador=identificador, monto=monto)
+        propietario = get_object_or_404(Perfil, user=1)
+        servicio = Servicio.objects.create(propietario=propietario, nombre=nombre, identificador=identificador, monto=monto, campo=campo)
         servicio.save()
         return Response({"message": "Servicio creado correctamente"}, status=status.HTTP_201_CREATED)
 
@@ -43,10 +51,11 @@ def gestionar_servicios(request):
         identificador = data_in.get('identificador')
         nombre = data_in.get('nombre')
         monto = data_in.get('monto')
+        campo = data_in.get('campo')
         
         servicio_existente = get_object_or_404(Servicio, id=id)
         
-        errores = validar_datos_servicio(monto, nombre, identificador, False)
+        errores = validar_datos_servicio(monto, nombre, identificador, campo, False)
         
         if errores:
             mensajes = ""
@@ -57,27 +66,29 @@ def gestionar_servicios(request):
         servicio_existente.nombre = nombre if nombre else servicio_existente.nombre
         servicio_existente.identificador = identificador if identificador else servicio_existente.identificador
         servicio_existente.monto = monto if monto else servicio_existente.monto
+        servicio_existente.campo = campo if campo else servicio_existente.campo
         servicio_existente.save()
         
-        propietario = get_object_or_404(Perfil, user=request.user)
-        servicio = Servicio.objects.create(propietario=propietario, nombre=nombre, identificador=identificador, monto=monto)
-        servicio.save()
         return Response({"message": "Servicio modificado correctamente"}, status=status.HTTP_201_CREATED)
     
     if request.method == 'DELETE':
         data_in = json.loads(request.body)
         id = data_in.get('id')
-        servicio = get_object_or_404(Servicio, id=id)
-        servicio.delete()
+        for item in id:
+            servicio = get_object_or_404(Servicio, id=item)
+            servicio.delete()
         return Response({"message": "Servicio eliminado correctamente"}, status=status.HTTP_200_OK)
        
        
-def validar_datos_servicio(monto, nombre, identificador, bandera):
+def validar_datos_servicio(monto, nombre, identificador, campo, bandera):
     
     errores = []
     
-    if not all([monto, identificador, nombre]):
+    if not all([monto, identificador, nombre, campo]):
         errores.append("Faltan campos requeridos")
+    
+    if len(campo) > 150:
+        errores.append("Campo excede límite de caracteres")
     
     if len(nombre) > 150:
         errores.append("Nombre excede límite de caracteres")
