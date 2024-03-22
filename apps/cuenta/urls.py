@@ -2,7 +2,7 @@ from django.urls import path
 from apps.cuenta.views import *
 
 urlpatterns = [
-    path('gestionar/', cuenta_gestionar, name='cuenta-registrar'),
+    path('gestionar/', cuenta_gestionar, name='cuenta_gestionar'),
     path('formulario/', cuenta_formulario, name='cuenta-formulario'),
 ]
 

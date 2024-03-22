@@ -6,17 +6,26 @@ from rest_framework.test import APIClient
 from apps.usuario.models import Perfil
 from apps.cuenta.models import Cuenta
 
-class CuentaGestionarViewTest(TestCase):
+class TestCuentaGestionarViewTest(TestCase):
+    print("TESTING CUENTA")
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
-        self.perfil = Perfil.objects.create(user=self.user)
+        self.user = User.objects.create_user(username='testuser', password='testpassword', email='testemail@test.com')
+        self.perfil = Perfil.objects.create(
+            user=self.user,
+            direccion='testdireccion',
+            telefono='12345678',
+            ci='01010114524',
+            sexo='M',
+            email='testemail@test.com'
+            )
+        
         self.cuenta = Cuenta.objects.create(
             no_cuenta='1234567890123456',
             saldo=1000.0,
             limite_ATM=500,
             limite_POS=1000,
-            tipo_cuenta='XYZ',
+            tipo_cuenta='CUP',
             propietario=self.perfil,
             nombre='Mi cuenta'
         )
@@ -36,7 +45,7 @@ class CuentaGestionarViewTest(TestCase):
             'saldo': 2000.0,
             'limite_ATM': 1000,
             'limite_POS': 2000,
-            'tipo_cuenta': 'ABC',
+            'tipo_cuenta': 'CUP',
             'nombre': 'Otra cuenta'
         }
         response = self.client.post(url, data, format='json')
@@ -78,8 +87,15 @@ class CuentaGestionarViewTest(TestCase):
         self.assertEqual(cuenta.nombre, 'Cuenta modificada')
     
     def test_update_other_user_cuenta(self):
-        other_user = User.objects.create_user(username='otheruser', password='otherpassword')
-        other_perfil = Perfil.objects.create(user=other_user)
+        other_user = User.objects.create_user(username='otheruser', password='otherpassword', email='othertestemail@test.com')
+        other_perfil = Perfil.objects.create(
+                        user=other_user,
+                        direccion='othertestdireccion',
+                        telefono='12345876',
+                        ci='02021014524',
+                        sexo='M',
+                        email='othertestemail@test.com'
+                       )
         other_cuenta = Cuenta.objects.create(
             no_cuenta='1111111111111111',
             saldo=2000.0,
@@ -106,13 +122,13 @@ class CuentaGestionarViewTest(TestCase):
         url = reverse('cuenta_gestionar')
         self.client.force_authenticate(user=self.user)
         data = {
-'id': self.cuenta.id
+            'id': self.cuenta.id
         }
         response = self.client.delete(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Cuenta.objects.count(), 0)  # Verifica que se haya eliminado la cuenta
 
-class CuentaFormularioViewTest(TestCase):
+class TestCuentaFormularioViewTest(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(username='testuser', password='testpassword')
