@@ -98,11 +98,11 @@ def realizar_transferencia(request):
         return Response({"message": mensaje}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST', 'GET'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def recargar_saldo_movil(request):
     if request.method == 'GET':
-        # usuario = request.user
-        propietario = get_object_or_404(Perfil, user=1)  # Revisar si sirveeeeeeeeeeeeeeeeee
+        usuario = request.user
+        propietario = get_object_or_404(Perfil, user=usuario)  # Revisar si sirveeeeeeeeeeeeeeeeee
         cuenta = Cuenta.objects.filter(propietario=propietario)
         serializer = Cuenta_Serializer(cuenta, many=True)
         return Response(serializer.data)
@@ -313,7 +313,7 @@ def detalle_operaciones(request):
     return Response(serializer.data)
 
 @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def resumen_operaciones(request):
     data_in = json.loads(request.body)
     cuenta_id_origen = data_in.get('id')
@@ -360,7 +360,7 @@ def resumen_operaciones(request):
         })
     
 @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def consultar_servicio(request):
     data_in = json.loads(request.body)
     identificador = data_in.get('identificador')

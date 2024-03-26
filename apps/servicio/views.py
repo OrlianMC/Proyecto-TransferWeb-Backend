@@ -10,10 +10,10 @@ from apps.usuario.models import Perfil
 from apps.servicio.serializers import ServicioSerializer
 
 @api_view(['POST', 'PUT', 'GET', 'DELETE'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def gestionar_servicio(request):
     if request.method == 'GET':
-        propietario = Perfil.objects.get(user=1)
+        propietario = Perfil.objects.get(user=request.user)
         servicio = Servicio.objects.filter(propietario=propietario)
         serializer = ServicioSerializer(servicio, many=True)
         return Response(serializer.data)
@@ -27,9 +27,9 @@ def gestionar_servicio(request):
         
         if nombre == "ONAT":
             campo = data_in.get('campo')    
-        if nombre == "Multa de Contravensión":
-            campo = data_in.get('campo')
-        if nombre == "Multa de Tránsito":
+        if nombre == "Multa de contravensión":
+            campo = data_in.get('campo') 
+        if nombre == "Multa de tránsito":
             campo = data_in.get('campo')     
             
         errores = validar_datos_servicio(monto, nombre, identificador, campo, True)
@@ -40,7 +40,7 @@ def gestionar_servicio(request):
                 mensajes += error + " "
             return Response(mensajes)
         
-        propietario = get_object_or_404(Perfil, user=1)
+        propietario = get_object_or_404(Perfil, user=request.user)
         servicio = Servicio.objects.create(propietario=propietario, nombre=nombre, identificador=identificador, monto=monto, campo=campo)
         servicio.save()
         return Response({"message": "Servicio creado correctamente"}, status=status.HTTP_201_CREATED)

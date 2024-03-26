@@ -13,27 +13,6 @@ from apps.usuario.models import Perfil
 from apps.usuario.serializers import *
 from django.views import View
 
-# @csrf_exempt
-@api_view(['POST'])
-def login_user(request):
-    if request.method == 'POST':
-        
-        data = json.loads(request.body)
-
-        username = data.get('username')
-        password = data.get('password')
-        
-        user = authenticate(request, username=username, password=password)
-        
-        if user is not None:
-            login(request, user)
-            print(request.COOKIES)
-            print(request.user)
-            return Response({True})
-
-        
-    return Response({False})
-
 @csrf_exempt
 @api_view(['POST'])
 def logout_user(request):

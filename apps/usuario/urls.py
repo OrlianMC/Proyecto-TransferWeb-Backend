@@ -6,7 +6,6 @@ urlpatterns = [
     path('registrar/', perfil_registrar, name='usuarios-registrar'),
     path('modificar/', perfil_administrar, name='usuarios-modificar'),
     path('formulario/', perfil_formulario, name='cargar-usuario-formulario'), #Devuelve datos de usuario para llenar formulario de modificar
-    path('login/', login_user, name='login-user'),#Login
     path('logout/', logout_user, name='logout-user'),#Logout
 ]
 

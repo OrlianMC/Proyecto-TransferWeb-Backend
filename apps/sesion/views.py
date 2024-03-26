@@ -26,6 +26,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
         password = data.get('password')
 
         user = authenticate(request, username=username, password=password)
+        
         if user is not None:
             login(request, user)
             

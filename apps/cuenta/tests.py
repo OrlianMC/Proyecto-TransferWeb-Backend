@@ -6,8 +6,9 @@ from rest_framework.test import APIClient
 from apps.usuario.models import Perfil
 from apps.cuenta.models import Cuenta
 
-class TestCuentaGestionarViewTest(TestCase):
+class Test_CuentaGestionarView(TestCase):
     print("TESTING CUENTA")
+    
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(username='testuser', password='testpassword', email='testemail@test.com')
@@ -31,14 +32,14 @@ class TestCuentaGestionarViewTest(TestCase):
         )
     
     def test_get_cuentas(self):
-        url = reverse('cuenta_gestionar')
+        url = reverse('cuenta-gestionar')
         self.client.force_authenticate(user=self.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)  # Verifica que se devuelva una cuenta
     
     def test_create_cuenta(self):
-        url = reverse('cuenta_gestionar')
+        url = reverse('cuenta-gestionar')
         self.client.force_authenticate(user=self.user)
         data = {
             'no_cuenta': '9876543210987654',
@@ -53,7 +54,7 @@ class TestCuentaGestionarViewTest(TestCase):
         self.assertEqual(Cuenta.objects.count(), 2)  # Verifica que se haya creado una nueva cuenta
     
     def test_create_existing_cuenta(self):
-        url = reverse('cuenta_gestionar')
+        url = reverse('cuenta-gestionar')
         self.client.force_authenticate(user=self.user)
         data = {
             'no_cuenta': '1234567890123456',  # Número de cuenta existente
@@ -67,7 +68,7 @@ class TestCuentaGestionarViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
     
     def test_update_cuenta(self):
-        url = reverse('cuenta_gestionar')
+        url = reverse('cuenta-gestionar')
         self.client.force_authenticate(user=self.user)
         data = {
             'id': self.cuenta.id,
@@ -105,7 +106,7 @@ class TestCuentaGestionarViewTest(TestCase):
             propietario=other_perfil,
             nombre='Otra cuenta'
         )
-        url = reverse('cuenta_gestionar')
+        url = reverse('cuenta-gestionar')
         self.client.force_authenticate(user=self.user)
         data = {
             'id': other_cuenta.id,
@@ -119,7 +120,7 @@ class TestCuentaGestionarViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
     
     def test_delete_cuenta(self):
-        url = reverse('cuenta_gestionar')
+        url = reverse('cuenta-gestionar')
         self.client.force_authenticate(user=self.user)
         data = {
             'id': self.cuenta.id
@@ -128,7 +129,7 @@ class TestCuentaGestionarViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Cuenta.objects.count(), 0)  # Verifica que se haya eliminado la cuenta
 
-class TestCuentaFormularioViewTest(TestCase):
+class Test_CuentaFormularioView(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(username='testuser', password='testpassword')
@@ -144,7 +145,7 @@ class TestCuentaFormularioViewTest(TestCase):
         )
     
     def test_get_cuenta_formulario(self):
-        url = reverse('cuenta_formulario')
+        url = reverse('cuenta-formulario')
         self.client.force_authenticate(user=self.user)
         data = {
             'id': self.cuenta.id
