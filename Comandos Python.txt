@@ -89,15 +89,8 @@ Python
 
 	pip install djangorestframework_simplejwt
 	
+- Ejecutar pruebas:
 
-- Archivo setting.py:
-
-	REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
-}
+	py manage.py test apps.'nombre_app'.tests.'nombre_test_class'
 
 

@@ -395,7 +395,7 @@ def pagar_servicio(request):
     else:
         return Response({"error": "Saldo insuficiente"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
     
-    if nombre_servicio == "Multa de Tránsito":
+    if nombre_servicio == "Multa de tránsito":
         articulo = data_in.get('articulo')
         inciso = data_in.get('inciso')
         provincia = data_in.get('provincia')
@@ -408,7 +408,7 @@ def pagar_servicio(request):
                    ", Monto pagado: " + str(monto) + " " + cuenta_origen.tipo_cuenta + ", Saldo restante: " + str(cuenta_origen.saldo) +
                     " " + cuenta_origen.tipo_cuenta + "."}
         
-    if nombre_servicio == "Multa de Contravención":
+    if nombre_servicio == "Multa de contravención":
         moneda = data_in.get('moneda')
         ci = servicio.campo
         
